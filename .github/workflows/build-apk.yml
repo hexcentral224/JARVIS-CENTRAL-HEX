@@ -5,6 +5,9 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -25,6 +28,16 @@ jobs:
 
       - name: Compiler l'APK
         run: cd projet/JARVIS && gradle assembleDebug --stacktrace
+
+      - name: Publier l'APK (téléchargement direct, sans zip)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "apk-${{ github.run_number }}" \
+            projet/JARVIS/app/build/outputs/apk/debug/app-debug.apk \
+            --title "JARVIS - build ${{ github.run_number }}" \
+            --notes "APK de test, à installer directement sur le téléphone." \
+            --latest
 
       - uses: actions/upload-artifact@v4
         with:
